@@ -18,6 +18,12 @@ fn log_error(msg: &str) {
 
 fn main() -> eframe::Result {
     std::panic::set_hook(Box::new(|info| log_error(&info.to_string())));
+    // Windows : le backend wgpu par défaut (DX12/Vulkan) échoue sur certains postes ; OpenGL passe partout.
+    #[cfg(windows)]
+    if std::env::var_os("WGPU_BACKEND").is_none() {
+        // SAFETY: appelé en tout début de main, avant la création de tout thread.
+        unsafe { std::env::set_var("WGPU_BACKEND", "gl") };
+    }
     // WSLg : la connexion Wayland tombe (« Broken pipe ») quand on agrandit la fenêtre, notamment sur un 2e écran ;
     // XWayland tient. MCO_WAYLAND=1 pour garder Wayland.
     if std::env::var_os("WSL_DISTRO_NAME").is_some()
