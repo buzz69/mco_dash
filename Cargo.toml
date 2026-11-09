@@ -1,0 +1,18 @@
+[package]
+name = "mco-dash"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+base64 = "0.23.1"
+chrono = "0.4.45"
+dotenvy = "0.15.7"
+eframe = "0.37.0"
+egui_extras = "0.37.0"
+notify-rust = "4.19.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+ureq = { version = "3.5.0", features = ["json"] }
+
+[target.'cfg(not(windows))'.dependencies]
+libloading = "0.8.9"
