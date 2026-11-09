@@ -10,7 +10,14 @@ mod secret;
 mod sound;
 mod theme;
 
+fn log_error(msg: &str) {
+    let path = config::settings_path().with_file_name("error.log");
+    let _ = std::fs::create_dir_all(path.parent().unwrap_or(std::path::Path::new(".")));
+    let _ = std::fs::write(path, msg);
+}
+
 fn main() -> eframe::Result {
+    std::panic::set_hook(Box::new(|info| log_error(&info.to_string())));
     // WSLg : la connexion Wayland tombe (« Broken pipe ») quand on agrandit la fenêtre, notamment sur un 2e écran ;
     // XWayland tient. MCO_WAYLAND=1 pour garder Wayland.
     if std::env::var_os("WSL_DISTRO_NAME").is_some()
@@ -33,5 +40,9 @@ fn main() -> eframe::Result {
         viewport.with_maximized(true).with_inner_size([1440.0, 900.0]).with_min_inner_size([1000.0, 620.0])
     };
     let options = eframe::NativeOptions { viewport, ..Default::default() };
-    eframe::run_native("MCO Dash", options, Box::new(|cc| Ok(Box::new(app::App::new(cc)))))
+    let result = eframe::run_native("MCO Dash", options, Box::new(|cc| Ok(Box::new(app::App::new(cc)))));
+    if let Err(e) = &result {
+        log_error(&e.to_string());
+    }
+    result
 }
